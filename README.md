@@ -124,6 +124,7 @@ No Windows, nomes com acento no `curl` da linha de comando podem chegar fora de 
 |---|---|
 | v0.1 | Pix por chave ponta a ponta, mensagens validadas no XSD, partidas dobradas, rejeições do catálogo |
 | v0.2 | Idempotência por EndToEndId, fluxo assíncrono com Kafka e outbox, timeouts, devolução (`pacs.004`) |
+| depois da v0.2 | Painel de visualização: uma página servida pela própria aplicação onde se dispara um Pix e se vê cada mensagem passar entre os bancos e o SPI, com os saldos mudando |
 | v0.3 | Teste de carga com números no README, métricas e painel |
 
 ## Stack
