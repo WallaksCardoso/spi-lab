@@ -1,0 +1,83 @@
+### Um Pix de ponta a ponta, um passo por vez.
+### No IntelliJ: suba o banco (docker compose up -d postgres), rode SpiLabApplication
+### e clique no ▶ ao lado de cada requisição, de cima para baixo.
+### Para começar do zero: docker compose down e depois up de novo (o banco não guarda nada).
+
+@base = http://localhost:8080
+
+### 1. Banco A entra no Pix com R$ 1.000.000,00 na conta PI (o dinheiro do banco dentro do SPI)
+POST {{base}}/spi/participantes
+Content-Type: application/json
+
+{"ispb": "11111111", "nome": "Banco A", "aporteInicialCentavos": 100000000}
+
+### 2. Banco B entra no Pix
+POST {{base}}/spi/participantes
+Content-Type: application/json
+
+{"ispb": "22222222", "nome": "Banco B", "aporteInicialCentavos": 100000000}
+
+### 3. João abre conta no Banco A com R$ 500,00
+POST {{base}}/psps/11111111/clientes
+Content-Type: application/json
+
+{"agencia": "0001", "numero": "1001", "tipo": "CACC", "titularNome": "João Souza", "titularDocumento": "11122233344", "depositoInicialCentavos": 50000}
+
+### 4. Maria abre conta no Banco B, sem saldo
+POST {{base}}/psps/22222222/clientes
+Content-Type: application/json
+
+{"agencia": "0001", "numero": "2002", "tipo": "CACC", "titularNome": "Maria Lima", "titularDocumento": "55566677788", "depositoInicialCentavos": 0}
+
+### 5. Maria cadastra o e-mail como chave Pix no DICT
+POST {{base}}/dict/chaves
+Content-Type: application/json
+
+{"tipo": "EMAIL", "chave": "maria@exemplo.com.br", "ispb": "22222222", "agencia": "0001", "numero": "2002"}
+
+### 6. O app do Banco A pergunta ao DICT de quem é a chave (é a tela "confirme os dados")
+GET {{base}}/dict/chaves/maria@exemplo.com.br
+
+### 7. João manda R$ 150,00 para a Maria
+POST {{base}}/psps/11111111/pix
+Content-Type: application/json
+
+{"agencia": "0001", "numero": "1001", "chave": "maria@exemplo.com.br", "valorCentavos": 15000, "descricao": "Almoço de sexta"}
+
+> {% client.global.set("e2e", response.body.endToEndId); %}
+
+### 8. O Pix visto pelo Banco A, com as 5 mensagens XML trocadas
+GET {{base}}/psps/11111111/pix/{{e2e}}
+
+### 9. O mesmo Pix visto pelo Banco B
+GET {{base}}/psps/22222222/pix/{{e2e}}
+
+### 10. Saldos depois do Pix
+GET {{base}}/psps/11111111/clientes/0001/1001
+
+###
+GET {{base}}/psps/22222222/clientes/0001/2002
+
+###
+GET {{base}}/spi/participantes/11111111/saldo
+
+###
+GET {{base}}/spi/participantes/22222222/saldo
+
+### 11. Tente quebrar: Pix maior que o saldo do João (o Banco A barra na hora, 422)
+POST {{base}}/psps/11111111/pix
+Content-Type: application/json
+
+{"agencia": "0001", "numero": "1001", "chave": "maria@exemplo.com.br", "valorCentavos": 999999, "descricao": "não vai"}
+
+### 12. Tente quebrar: chave que não existe (404)
+POST {{base}}/psps/11111111/pix
+Content-Type: application/json
+
+{"agencia": "0001", "numero": "1001", "chave": "ninguem@exemplo.com.br", "valorCentavos": 100}
+
+### 13. Tente quebrar: Pix de valor zero (o SPI rejeita com AM01)
+POST {{base}}/psps/11111111/pix
+Content-Type: application/json
+
+{"agencia": "0001", "numero": "1001", "chave": "maria@exemplo.com.br", "valorCentavos": 0}

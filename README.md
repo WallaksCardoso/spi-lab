@@ -114,6 +114,8 @@ docker compose up -d postgres   # só o banco
 ./mvnw spring-boot:run          # aplicação local, fora do Docker
 ```
 
+No IntelliJ: abra a pasta do projeto (ele reconhece o `pom.xml`), rode `SpiLabApplication` com o banco do Compose no ar e use `http/demo.http`, que tem o mesmo Pix do script, um passo por clique.
+
 No Windows, nomes com acento no `curl` da linha de comando podem chegar fora de UTF-8; mande o corpo de um arquivo (`--data-binary @corpo.json`), como faz o `scripts/demo.sh`.
 
 ## Roteiro
