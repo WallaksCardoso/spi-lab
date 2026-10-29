@@ -1,5 +1,7 @@
 package io.github.wallakscardoso.spilab.config;
 
+import io.github.wallakscardoso.spilab.dict.ChaveInvalidaException;
+import io.github.wallakscardoso.spilab.dict.ChaveNaoEncontradaException;
 import io.github.wallakscardoso.spilab.psp.ContaClienteNaoEncontradaException;
 import io.github.wallakscardoso.spilab.razao.LancamentoInvalidoException;
 import io.github.wallakscardoso.spilab.razao.SaldoInsuficienteException;
@@ -12,12 +14,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class TratamentoDeErros {
 
-    @ExceptionHandler({ParticipanteNaoEncontradoException.class, ContaClienteNaoEncontradaException.class})
+    @ExceptionHandler({ParticipanteNaoEncontradoException.class, ContaClienteNaoEncontradaException.class,
+            ChaveNaoEncontradaException.class})
     ProblemDetail naoEncontrado(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
-    @ExceptionHandler({LancamentoInvalidoException.class, SaldoInsuficienteException.class})
+    @ExceptionHandler({LancamentoInvalidoException.class, SaldoInsuficienteException.class,
+            ChaveInvalidaException.class})
     ProblemDetail regraDeNegocio(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
     }

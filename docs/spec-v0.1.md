@@ -123,6 +123,6 @@ Conferidas em 2026-10-29 (cópias locais em `docs/bcb/`, fora do git):
 |---|---|---|
 | 0 | 02/11 – 08/11 | ✓ Spec conferida com os manuais e XSDs (adiantado em 29/10); ✓ repo criado com README de intenção |
 | 1 | 09/11 – 15/11 | ✓ Esqueleto (Maven, Compose, Flyway, CI); participantes, contas PI e contas de clientes; razão com invariante testada (adiantado em 29/10) |
-| 2 | 16/11 – 22/11 | DICT; `pacs.008`/`pacs.002` montadas e validadas no XSD; post de 18/11 |
+| 2 | 16/11 – 22/11 | ✓ DICT (adiantado em 29/10); `pacs.008`/`pacs.002` montadas e validadas no XSD |
 | 3 | 23/11 – 29/11 | Fluxo completo e as 4 rejeições; teste de concorrência |
 | 4 | 30/11 – 06/12 | README, diagrama, Swagger; **tag v0.1** |
