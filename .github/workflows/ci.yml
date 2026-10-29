@@ -17,3 +17,5 @@ jobs:
           cache: maven
       - name: Testes (com PostgreSQL via Testcontainers)
         run: ./mvnw -B -ntp verify
+      - name: Imagem Docker
+        run: docker build -t spi-lab .

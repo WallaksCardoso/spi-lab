@@ -91,14 +91,16 @@ Status da `pacs.002` (tabela de domínios do catálogo 5.13): `ACSP` = aceita pe
 - Swagger em `/swagger-ui`
 
 ## Critérios de aceite
-- [ ] `docker compose up` sobe banco e aplicação; um script cria 2 PSPs, 2 clientes e 1 chave
-- [ ] Pix de R$ 100,00 por chave: status final `LIQUIDADA`; saldos de clientes e contas PI batem
-- [ ] Cada uma das 6 rejeições da tabela termina em `REJEITADA`, com o código certo, sem mexer em saldo nenhum
-- [ ] Toda `pacs.008`/`pacs.002` gerada valida contra o XSD oficial (`pacs.008.spi.1.16`, `pacs.002.spi.1.18`), e os exemplos oficiais são lidos sem erro
-- [ ] Teste de concorrência: 50 Pix simultâneos do mesmo pagador nunca deixam saldo negativo
-- [ ] Invariante testada: soma de todos os lançamentos = 0 (cliente e PI)
-- [ ] Testes de integração com Testcontainers (PostgreSQL); CI no GitHub Actions verde
-- [ ] README: o problema, como rodar em 1 comando, diagrama do fluxo, decisões e o que é simplificação
+- [x] `docker compose up` sobe banco e aplicação; um script cria 2 PSPs, 2 clientes e 1 chave
+- [x] Pix de R$ 100,00 por chave: status final `LIQUIDADA`; saldos de clientes e contas PI batem
+- [x] Cada uma das 6 rejeições da tabela termina em `REJEITADA`, com o código certo, sem mexer em saldo nenhum
+- [x] Toda `pacs.008`/`pacs.002` gerada valida contra o XSD oficial (`pacs.008.spi.1.16`, `pacs.002.spi.1.18`), e os exemplos oficiais são lidos sem erro
+- [x] Teste de concorrência: 50 Pix simultâneos do mesmo pagador nunca deixam saldo negativo
+- [x] Invariante testada: soma de todos os lançamentos = 0 (cliente e PI)
+- [x] Testes de integração com Testcontainers (PostgreSQL); CI no GitHub Actions verde
+- [x] README: o problema, como rodar em 1 comando, diagrama do fluxo, decisões e o que é simplificação
+
+Conferidos em 2026-10-29 na tag `v0.1.0`: script `scripts/demo.sh` contra `docker compose up`; testes `PixFluxoTest` (fluxo, rejeições, 50 simultâneos), `MensagensIso20022Test` (XSD e exemplos oficiais), `RazaoTest` (soma zero), CI verde.
 
 ## Decisões (e por quê)
 1. **Um serviço modular, não microsserviços**: o foco é o domínio e as mensagens; separar em serviços agora só traria infraestrutura. As fronteiras HTTP/XML deixam a separação fácil depois.
@@ -128,4 +130,4 @@ Conferidas em 2026-10-29 (cópias locais em `docs/bcb/`, fora do git):
 | 1 | 09/11 – 15/11 | ✓ Esqueleto (Maven, Compose, Flyway, CI); participantes, contas PI e contas de clientes; razão com invariante testada (adiantado em 29/10) |
 | 2 | 16/11 – 22/11 | ✓ DICT e ✓ `pacs.008`/`pacs.002` montadas e validadas no XSD (adiantados em 29/10) |
 | 3 | 23/11 – 29/11 | ✓ Fluxo completo, rejeições (AC03, AM04, AM01, FF08, RC09, RC10) e teste de 50 Pix simultâneos (adiantado em 29/10) |
-| 4 | 30/11 – 06/12 | README, diagrama, Swagger; **tag v0.1** |
+| 4 | 30/11 – 06/12 | ✓ README, diagrama, Swagger, Docker e script de demonstração; **tag v0.1** (adiantado em 29/10) |
