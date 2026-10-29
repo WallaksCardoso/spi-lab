@@ -2,7 +2,7 @@
 
 Simulador de estudo do Pix: participantes, chaves, ordens de pagamento em ISO 20022 e liquidação nas contas de cada participante, montados numa máquina só.
 
-> **Em construção.** A v0.1 está prevista para dezembro de 2026. Já existe: o razão em partidas dobradas, os participantes do SPI com suas contas PI, as contas de clientes dos PSPs e o DICT (chaves Pix).
+> **Em construção.** A v0.1 está prevista para dezembro de 2026. Já existe: o razão em partidas dobradas, os participantes do SPI com suas contas PI, as contas de clientes dos PSPs, o DICT (chaves Pix) e as mensagens `pacs.008` e `pacs.002` validadas contra os XSDs oficiais.
 
 ## Por quê
 
@@ -63,6 +63,10 @@ Chaves de CPF, CNPJ (já no formato alfanumérico), e-mail (até 77 caracteres),
 ## Como o dinheiro é registrado
 
 Cada livro (o SPI e cada PSP) tem suas contas no razão. Toda transação movimenta duas ou mais contas do mesmo livro, e a soma das partidas é sempre zero: o aporte numa conta PI sai da conta `STR` (reservas bancárias); o depósito na conta de um cliente sai da conta `CAIXA` do PSP. Contas de dinheiro de alguém (PI, cliente) nunca ficam negativas; se uma partida deixaria saldo negativo, a transação inteira é desfeita.
+
+## Mensagens ISO 20022
+
+`pacs.008` (ordem de pagamento) e `pacs.002` (aceite, rejeição com código do catálogo, confirmação de liquidação) são montadas e lidas no formato do catálogo do SPI 5.13.2 e conferidas contra os XSDs oficiais (`src/main/resources/bcb/`). Os exemplos oficiais do Banco Central fazem parte dos testes. A assinatura digital do cabeçalho fica fora do escopo: é o único campo que o validador trata como opcional.
 
 ## Stack
 
