@@ -22,13 +22,13 @@ Um Pix por chave, ponta a ponta:
 
 Todo movimento é registrado em partidas dobradas: a soma dos lançamentos é sempre zero.
 
-Detalhes, regras, critérios de aceite e decisões em [`docs/spec-v0.1.md`](docs/spec-v0.1.md).
+Detalhes, regras, critérios de aceite e decisões em [`docs/spec-v0.1.md`](docs/spec-v0.1.md). A spec foi conferida com o catálogo de mensagens do SPI 5.13.2 e com os manuais do Banco Central (links na própria spec).
 
 ## Roteiro
 
 | Versão | Entrega |
 |---|---|
-| v0.1 | Pix por chave, mensagens ISO 20022 validadas no XSD, liquidação em partidas dobradas, 4 tipos de rejeição |
+| v0.1 | Pix por chave, mensagens ISO 20022 validadas no XSD, liquidação em partidas dobradas, 6 casos de rejeição com os códigos do catálogo |
 | v0.2 | Idempotência por EndToEndId, Kafka com outbox, devolução (`pacs.004`) |
 | v0.3 | Teste de carga com números no README, métricas e painel |
 
