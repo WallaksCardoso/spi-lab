@@ -2,7 +2,7 @@
 
 Simulador de estudo do Pix: participantes, chaves, ordens de pagamento em ISO 20022 e liquidação nas contas de cada participante, montados numa máquina só.
 
-> **Em construção.** A v0.1 está prevista para dezembro de 2026. Já existe: o razão em partidas dobradas, os participantes do SPI com suas contas PI, as contas de clientes dos PSPs, o DICT (chaves Pix) e as mensagens `pacs.008` e `pacs.002` validadas contra os XSDs oficiais.
+> **Em construção.** A v0.1 está prevista para dezembro de 2026. **O Pix por chave já funciona de ponta a ponta**: DICT, mensagens `pacs.008`/`pacs.002` validadas contra os XSDs oficiais, liquidação nas contas PI e lançamento nas contas dos clientes, com as rejeições do catálogo.
 
 ## Por quê
 
@@ -52,6 +52,12 @@ curl -X POST localhost:8080/psps/11111111/clientes -H 'Content-Type: application
 curl -X POST localhost:8080/dict/chaves -H 'Content-Type: application/json'   -d '{"tipo":"EMAIL","chave":"fulano@exemplo.com.br","ispb":"11111111","agencia":"0001","numero":"123"}'
 
 curl localhost:8080/dict/chaves/fulano@exemplo.com.br
+
+# Pix por chave (depois de cadastrar um segundo banco e cliente, e a chave do recebedor)
+curl -X POST localhost:8080/psps/11111111/pix -H 'Content-Type: application/json'   -d '{"agencia":"0001","numero":"123","chave":"maria@exemplo.com.br","valorCentavos":15000,"descricao":"Almoco"}'
+
+# status e todas as mensagens XML trocadas
+curl localhost:8080/psps/11111111/pix/<endToEndId>
 ```
 
 No Windows, nomes com acento no `curl` da linha de comando podem chegar fora de UTF-8; mande o corpo de um arquivo (`--data-binary @corpo.json`).
@@ -63,6 +69,20 @@ Chaves de CPF, CNPJ (já no formato alfanumérico), e-mail (até 77 caracteres),
 ## Como o dinheiro é registrado
 
 Cada livro (o SPI e cada PSP) tem suas contas no razão. Toda transação movimenta duas ou mais contas do mesmo livro, e a soma das partidas é sempre zero: o aporte numa conta PI sai da conta `STR` (reservas bancárias); o depósito na conta de um cliente sai da conta `CAIXA` do PSP. Contas de dinheiro de alguém (PI, cliente) nunca ficam negativas; se uma partida deixaria saldo negativo, a transação inteira é desfeita.
+
+## Um Pix, mensagem por mensagem
+
+```
+1. pacs.008  Banco A -> SPI      ordem de pagamento
+2. pacs.008  SPI     -> Banco B  repasse ao recebedor
+3. pacs.002  Banco B -> SPI      ACSP (aceita)
+4. pacs.002  SPI     -> Banco B  ACCC (liquidada: o Banco B credita a cliente)
+5. pacs.002  SPI     -> Banco A  ACSC (liquidada: o Banco A encerra o envio)
+```
+
+Antes de mandar a ordem, o Banco A tira o valor da conta do cliente e reserva numa conta de trânsito; se o SPI rejeitar, o valor volta. Rejeições cobertas, com os códigos do catálogo: `AC03` (conta do recebedor inexistente), `AM04` (conta PI do pagador sem saldo), `AM01` (valor zero), `FF08` (EndToEndId incoerente), `RC09`/`RC10` (participante desconhecido). Chave inexistente e cliente sem saldo param no próprio banco, sem mensagem.
+
+Um teste dispara 50 Pix simultâneos do mesmo cliente com saldo para 30: exatamente 30 liquidam, 20 são recusados, o saldo nunca fica negativo e os três livros fecham em zero.
 
 ## Mensagens ISO 20022
 

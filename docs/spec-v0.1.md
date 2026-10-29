@@ -78,7 +78,8 @@ Status da `pacs.002` (tabela de domínios do catálogo 5.13): `ACSP` = aceita pe
 
 - **Tempo** (Manual de Tempos do Pix): a transação tem no máximo 40 segundos; vira regra de timeout (`AB03`) na v0.2, quando o fluxo ficar assíncrono.
 - **Partidas dobradas**: cada movimento grava débito e crédito com o mesmo id de transação; soma de débitos = soma de créditos, sempre.
-- **Concorrência**: saldo com bloqueio otimista (`version`); duas ordens simultâneas no mesmo pagador não podem deixar saldo negativo.
+- **Concorrência**: cada lançamento trava as contas envolvidas (`select ... for update`) sempre na mesma ordem, o que evita espera em círculo; o `version` continua como segunda proteção. Duas ordens simultâneas no mesmo pagador não podem deixar saldo negativo.
+- **Reserva**: o PSP pagador tira o valor do cliente e guarda numa conta de trânsito antes de mandar a `pacs.008`; liquidado, vai para a contrapartida do SPI; rejeitado, volta ao cliente.
 - **Horário**: tudo em UTC no banco; exibição em America/Sao_Paulo.
 
 ## API de simulação (REST, JSON)
@@ -105,7 +106,9 @@ Status da `pacs.002` (tabela de domínios do catálogo 5.13): `ACSP` = aceita pe
 3. **Partidas dobradas desde o início**: é a parte mais difícil de colocar depois e a que mais mostra maturidade em sistema financeiro.
 4. **PostgreSQL + Testcontainers** em vez de H2: testar concorrência e bloqueio em banco de verdade.
 5. **Spring Boot 4.1**: a linha 3.5 parou de receber atualizações em junho de 2026; projeto novo começa na versão suportada.
-6. **Síncrono na v0.1**: o fluxo real é assíncrono com timeouts; a v0.2 introduz isso com mensageria. Fica registrado no README como simplificação.
+6. **Trava pessimista no lugar da otimista**: com 50 Pix disputando as mesmas contas (trânsito, PI), a otimista falharia o tempo todo e exigiria novas tentativas; travar na mesma ordem é mais simples e não corre risco de deadlock.
+7. **Mensagem fora do XSD volta como erro HTTP 400**: o SPI de verdade responde com `admi.002`, que fica fora do escopo da v0.1.
+8. **Síncrono na v0.1**: o fluxo real é assíncrono com timeouts; a v0.2 introduz isso com mensageria. Fica registrado no README como simplificação.
 
 ## Fontes (públicas)
 Conferidas em 2026-10-29 (cópias locais em `docs/bcb/`, fora do git):
@@ -124,5 +127,5 @@ Conferidas em 2026-10-29 (cópias locais em `docs/bcb/`, fora do git):
 | 0 | 02/11 – 08/11 | ✓ Spec conferida com os manuais e XSDs (adiantado em 29/10); ✓ repo criado com README de intenção |
 | 1 | 09/11 – 15/11 | ✓ Esqueleto (Maven, Compose, Flyway, CI); participantes, contas PI e contas de clientes; razão com invariante testada (adiantado em 29/10) |
 | 2 | 16/11 – 22/11 | ✓ DICT e ✓ `pacs.008`/`pacs.002` montadas e validadas no XSD (adiantados em 29/10) |
-| 3 | 23/11 – 29/11 | Fluxo completo e as 4 rejeições; teste de concorrência |
+| 3 | 23/11 – 29/11 | ✓ Fluxo completo, rejeições (AC03, AM04, AM01, FF08, RC09, RC10) e teste de 50 Pix simultâneos (adiantado em 29/10) |
 | 4 | 30/11 – 06/12 | README, diagrama, Swagger; **tag v0.1** |

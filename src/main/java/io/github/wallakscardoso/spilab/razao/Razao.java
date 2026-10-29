@@ -4,8 +4,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -43,11 +45,16 @@ public class Razao {
     @Transactional
     public Transacao lancar(String livro, String descricao, List<Partida> partidas) {
         validar(partidas);
+        Map<String, Conta> travadas = new HashMap<>();
+        for (Conta c : contas.travar(livro, partidas.stream().map(Partida::codigoConta).toList())) {
+            travadas.put(c.getCodigo(), c);
+        }
         Transacao transacao = new Transacao(livro, descricao, relogio.instant());
         for (Partida partida : partidas) {
-            Conta conta = contas.findByLivroAndCodigo(livro, partida.codigoConta())
-                    .orElseThrow(() -> new LancamentoInvalidoException(
-                            "Conta inexistente: %s/%s".formatted(livro, partida.codigoConta())));
+            Conta conta = travadas.get(partida.codigoConta());
+            if (conta == null) {
+                throw new LancamentoInvalidoException("Conta inexistente: %s/%s".formatted(livro, partida.codigoConta()));
+            }
             conta.movimentar(partida.valorCentavos());
             transacao.adicionar(conta, partida.valorCentavos());
         }

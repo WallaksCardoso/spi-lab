@@ -37,6 +37,8 @@ public class ClienteService {
         String livro = Psp.livro(ispb);
         String codigo = Psp.contaCliente(nova.agencia(), nova.numero());
         razao.abrirContaSeNaoExistir(livro, Psp.CONTA_CAIXA, "Caixa (origem dos depósitos)", true);
+        razao.abrirContaSeNaoExistir(livro, Psp.CONTA_TRANSITO, "Pix enviados aguardando o SPI", false);
+        razao.abrirContaSeNaoExistir(livro, Psp.CONTA_SPI, "Liquidação via SPI", true);
         Conta conta = razao.abrirConta(livro, codigo, "Conta de " + nova.titularNome(), false);
         ContaCliente contaCliente = contasCliente.save(new ContaCliente(ispb, nova.agencia(), nova.numero(),
                 nova.tipo(), nova.titularNome(), nova.titularDocumento(), conta.getId()));

@@ -42,7 +42,8 @@ public record Pacs008(Cabecalho cabecalho, String endToEndId, long valorCentavos
         xml.filho(tx, "IntrBkSttlmAmt", Xml.valorEmReais(valorCentavos)).setAttribute("Ccy", "BRL");
         xml.filho(tx, "AccptncDtTm", Xml.dataHora(aceitaEm));
         xml.filho(tx, "ChrgBr", "SLEV");
-        xml.caminho(tx, "MndtRltdInf/Tp/LclInstrm/Prtry", "DICT");
+        boolean porChave = recebedor.chave() != null && !recebedor.chave().isBlank();
+        xml.caminho(tx, "MndtRltdInf/Tp/LclInstrm/Prtry", porChave ? "DICT" : "MANU");
 
         Element dbtr = xml.filho(tx, "Dbtr");
         xml.filho(dbtr, "Nm", pagador.nome());
@@ -54,7 +55,9 @@ public record Pacs008(Cabecalho cabecalho, String endToEndId, long valorCentavos
         xml.caminho(xml.filho(tx, "Cdtr"), "Id/PrvtId/Othr/Id", recebedor.documento());
         Element cdtrAcct = xml.filho(tx, "CdtrAcct");
         conta(xml, cdtrAcct, recebedor.conta(), recebedor.agencia(), recebedor.tipoConta());
-        xml.caminho(cdtrAcct, "Prxy/Id", recebedor.chave());
+        if (porChave) {
+            xml.caminho(cdtrAcct, "Prxy/Id", recebedor.chave());
+        }
 
         xml.caminho(tx, "Purp/Cd", "IPAY");
         if (descricao != null && !descricao.isBlank()) {
