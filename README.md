@@ -2,7 +2,7 @@
 
 Simulador de estudo do Pix: participantes, chaves, ordens de pagamento em ISO 20022 e liquidação nas contas de cada participante, montados numa máquina só.
 
-> **Em construção.** Este repositório começa pela especificação. A v0.1 está prevista para dezembro de 2026.
+> **Em construção.** A v0.1 está prevista para dezembro de 2026. Já existe: o razão em partidas dobradas, os participantes do SPI com suas contas PI e as contas de clientes dos PSPs.
 
 ## Por quê
 
@@ -32,9 +32,31 @@ Detalhes, regras, critérios de aceite e decisões em [`docs/spec-v0.1.md`](docs
 | v0.2 | Idempotência por EndToEndId, Kafka com outbox, devolução (`pacs.004`) |
 | v0.3 | Teste de carga com números no README, métricas e painel |
 
+## Como rodar
+
+Precisa de Java 21+ e Docker.
+
+```bash
+docker compose up -d        # PostgreSQL
+./mvnw spring-boot:run      # aplicação em http://localhost:8080
+./mvnw verify               # testes (sobem um PostgreSQL próprio via Testcontainers)
+```
+
+Exemplo:
+
+```bash
+curl -X POST localhost:8080/spi/participantes -H 'Content-Type: application/json'   -d '{"ispb":"11111111","nome":"PSP A","aporteInicialCentavos":100000000}'
+
+curl -X POST localhost:8080/psps/11111111/clientes -H 'Content-Type: application/json'   -d '{"agencia":"0001","numero":"123","tipo":"CACC","titularNome":"Fulano","titularDocumento":"12345678901","depositoInicialCentavos":50000}'
+```
+
+## Como o dinheiro é registrado
+
+Cada livro (o SPI e cada PSP) tem suas contas no razão. Toda transação movimenta duas ou mais contas do mesmo livro, e a soma das partidas é sempre zero: o aporte numa conta PI sai da conta `STR` (reservas bancárias); o depósito na conta de um cliente sai da conta `CAIXA` do PSP. Contas de dinheiro de alguém (PI, cliente) nunca ficam negativas; se uma partida deixaria saldo negativo, a transação inteira é desfeita.
+
 ## Stack
 
-Java 21, Spring Boot 3, Maven, PostgreSQL, Flyway, JUnit 5, Testcontainers, Docker Compose.
+Java 21, Spring Boot 4.1, Maven, PostgreSQL 17, Flyway, JUnit 5, Testcontainers, Docker Compose, GitHub Actions.
 
 ## Licença
 

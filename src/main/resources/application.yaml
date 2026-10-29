@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: spi-lab
+  datasource:
+    url: jdbc:postgresql://localhost:5432/spilab
+    username: spilab
+    password: spilab
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC

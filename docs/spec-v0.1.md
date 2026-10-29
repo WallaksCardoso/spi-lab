@@ -104,7 +104,8 @@ Status da `pacs.002` (tabela de domínios do catálogo 5.13): `ACSP` = aceita pe
 2. **XML de verdade (ISO 20022) entre PSP e SPI**, não JSON: é o que diferencia o projeto e o que o mercado de pagamentos conhece.
 3. **Partidas dobradas desde o início**: é a parte mais difícil de colocar depois e a que mais mostra maturidade em sistema financeiro.
 4. **PostgreSQL + Testcontainers** em vez de H2: testar concorrência e bloqueio em banco de verdade.
-5. **Síncrono na v0.1**: o fluxo real é assíncrono com timeouts; a v0.2 introduz isso com mensageria. Fica registrado no README como simplificação.
+5. **Spring Boot 4.1**: a linha 3.5 parou de receber atualizações em junho de 2026; projeto novo começa na versão suportada.
+6. **Síncrono na v0.1**: o fluxo real é assíncrono com timeouts; a v0.2 introduz isso com mensageria. Fica registrado no README como simplificação.
 
 ## Fontes (públicas)
 Conferidas em 2026-10-29 (cópias locais em `docs/bcb/`, fora do git):
@@ -121,7 +122,7 @@ Conferidas em 2026-10-29 (cópias locais em `docs/bcb/`, fora do git):
 | Semana | Datas | Entrega |
 |---|---|---|
 | 0 | 02/11 – 08/11 | ✓ Spec conferida com os manuais e XSDs (adiantado em 29/10); ✓ repo criado com README de intenção |
-| 1 | 09/11 – 15/11 | Esqueleto (Maven, Compose, Flyway, CI); participantes, contas PI e contas de clientes; ledger com invariante testada |
+| 1 | 09/11 – 15/11 | ✓ Esqueleto (Maven, Compose, Flyway, CI); participantes, contas PI e contas de clientes; razão com invariante testada (adiantado em 29/10) |
 | 2 | 16/11 – 22/11 | DICT; `pacs.008`/`pacs.002` montadas e validadas no XSD; post de 18/11 |
 | 3 | 23/11 – 29/11 | Fluxo completo e as 4 rejeições; teste de concorrência |
 | 4 | 30/11 – 06/12 | README, diagrama, Swagger; **tag v0.1** |
